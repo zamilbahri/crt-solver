@@ -5,6 +5,7 @@ import InputPanel from './components/InputPanel';
 import CRTStepsTable from './components/CRTStepsTable';
 import FinalResult from './components/FinalResult';
 import AlgorithmExplanation from './components/AlgorithmExplanation';
+import Footer from './components/Footer';
 
 import type { EquationDraft, SolveResult } from './types';
 import { pairwiseCoprimeConflicts, solveCRT } from './utils/crt';
@@ -248,6 +249,8 @@ const App: React.FC = () => {
         <div className="rounded-xl p-6 shadow-2xl mb-8 border border-gray-700 bg-gray-800">
           <AlgorithmExplanation />
         </div>
+
+        <Footer />
       </div>
     </div>
   );
