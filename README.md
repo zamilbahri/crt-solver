@@ -14,9 +14,9 @@ The solver accepts a system of congruences of the form:
     x ≡ a_n (mod m_n)
 
 When the moduli m_1, m_2, ..., m_n are pairwise coprime, the Chinese Remainder Theorem
-guarantees a unique solution modulo M = m_1 * m*2 \* ... * m*n. The computed value x
+guarantees a unique solution modulo M = m_1 * m_2 \* ... \* m_n. The computed value x
 satisfies each congruence x ≡ a_i (mod m_i); any other solution differs from x by a
-multiple of M (that is, x + k * M for integer k).
+multiple of M (that is, x + M * k for integer k).
 
 ## Algorithm (high level)
 
