@@ -27,4 +27,4 @@ multiple of M (that is, x + k * M for integer k).
 
 ## Related
 
-Check out my [Fast Exponentiation calculator](https://zamilbahri.github.io/fast-exponentiation)!
+Check out my [Fast Exponentiation calculator](https://github.com/zamilbahri/fast-exponentiation)!
