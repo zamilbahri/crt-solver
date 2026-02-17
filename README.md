@@ -21,8 +21,8 @@ multiple of M (that is, x + M * k for integer k).
 ## Algorithm (high level)
 
 - Compute the total modulus M = product of all m_i.
-- For each term i: compute M*i = M / m_i, find the modular inverse of M_i modulo m_i
-  using the extended Euclidean algorithm, then add the contribution a_i * M*i * y_i to a running sum.
+- For each term i: compute M_i = M / m_i, find the modular inverse of M_i modulo m_i
+  using the extended Euclidean algorithm, then add the contribution a_i * M_i * y_i to a running sum.
 - Reduce the sum modulo M to obtain the unique solution in range 0..M-1.
 
 ## Related
