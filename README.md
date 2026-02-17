@@ -13,10 +13,10 @@ The solver accepts a system of congruences of the form:
     ...
     x ≡ a_n (mod m_n)
 
-When the moduli m_1, m_2, ..., m_n are pairwise coprime, the Chinese Remainder Theorem
-guarantees a unique solution modulo M = m_1 * m*2 * ... _ m_n. The computed value x
+When the moduli m*1, m_2, ..., m_n are pairwise coprime, the Chinese Remainder Theorem
+guarantees a unique solution modulo M = m_1 * m*2 \* ... * m*n. The computed value x
 satisfies each congruence x ≡ a_i (mod m_i); any other solution differs from x by a
-multiple of M (that is, x + k _ M for integer k).
+multiple of M (that is, x + k * M for integer k).
 
 ## Algorithm (high level)
 
@@ -25,6 +25,6 @@ multiple of M (that is, x + k _ M for integer k).
   using the extended Euclidean algorithm, then add the contribution a_i * M*i * y_i to a running sum.
 - Reduce the sum modulo M to obtain the unique solution in range 0..M-1.
 
-## Implementation notes
+## Related
 
-Implemented in TypeScript and uses BigInt for exact integer math.
+Check out my [Fast Exponentiation calculator](https://zamilbahri.github.io/fast-exponentiation)!
