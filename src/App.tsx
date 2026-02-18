@@ -10,11 +10,6 @@ import Footer from './components/Footer';
 import type { EquationDraft, SolveResult } from './types';
 import { pairwiseCoprimeConflicts, solveCRT } from './utils/crt';
 
-/**
- * LocalStorage key for persisting application state
- * @const
- */
-const STORAGE_KEY = 'crt_solver_state';
 const MAX_EQUATIONS = 10;
 
 /**
@@ -73,53 +68,6 @@ const defaultExample = (): EquationDraft[] => {
   ];
 };
 
-/**
- * Loads equation drafts from localStorage.
- *
- * Returns the saved draft if valid, otherwise returns the default example.
- * Safely handles parsing errors and invalid data formats.
- *
- * @returns {EquationDraft[]} The loaded or default equations
- */
-const loadDraft = (): EquationDraft[] => {
-  try {
-    const rawData = localStorage.getItem(STORAGE_KEY);
-    if (!rawData) return defaultExample();
-    const parsedData: unknown = JSON.parse(rawData);
-
-    if (!Array.isArray(parsedData)) return defaultExample();
-    const equationItems = parsedData
-      .filter((item) => typeof item === 'object' && item !== null)
-      .map((item) => {
-        const itemObject = item as Record<string, unknown>;
-        return {
-          a: typeof itemObject.a === 'string' ? itemObject.a : '',
-          m: typeof itemObject.m === 'string' ? itemObject.m : '',
-        } satisfies EquationDraft;
-      });
-
-    return equationItems.length > 0 ? equationItems : defaultExample();
-  } catch {
-    return defaultExample();
-  }
-};
-
-/**
- * Saves equation drafts to localStorage.
- *
- * Persists the current state so it survives page reloads.
- *
- * @param {EquationDraft[]} draftData - The equations to save
- */
-// Note: we keep `localStorage` helpers only as a fallback for older saved state.
-const saveDraft = (draftData: EquationDraft[]): void => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(draftData));
-  } catch {
-    // ignore
-  }
-};
-
 const loadFromUrl = (): EquationDraft[] | null => {
   try {
     const sp = new URLSearchParams(window.location.search);
@@ -169,9 +117,7 @@ const writeToUrl = (draftData: EquationDraft[]): void => {
  */
 const App: React.FC = () => {
   const [equations, setEquations] = useState<EquationDraft[]>(() => {
-    const fromUrl = loadFromUrl();
-    if (fromUrl && fromUrl.length > 0) return fromUrl;
-    return loadDraft();
+    return loadFromUrl() ?? defaultExample();
   });
 
   // Persist to URL (debounced) and also save to localStorage as a fallback copy
@@ -182,7 +128,6 @@ const App: React.FC = () => {
     }
     writeTimer.current = window.setTimeout(() => {
       writeToUrl(equations);
-      saveDraft(equations);
       writeTimer.current = null;
     }, 300);
 
