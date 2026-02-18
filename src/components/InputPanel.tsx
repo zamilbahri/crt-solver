@@ -48,6 +48,8 @@ const InputPanel: React.FC<InputPanelProps> = ({
   errors,
   isCoprime,
 }) => {
+  const MAX_EQUATIONS = 10;
+  const canAdd = equations.length < MAX_EQUATIONS;
   /**
    * Creates an input change handler that only accepts non-negative integer values.
    *
@@ -73,10 +75,26 @@ const InputPanel: React.FC<InputPanelProps> = ({
         <h2 className="text-xl font-semibold text-purple-300">Inputs</h2>
 
         <div className="flex flex-wrap items-center gap-3">
+          {!canAdd && (
+            <span className="italic text-sm text-gray-300 self-center mr-2">
+              Equation limit reached
+            </span>
+          )}
           <button
             type="button"
-            onClick={onAdd}
-            className="rounded-lg border border-purple-600 bg-purple-700 px-4 py-2 text-white hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            onClick={() => canAdd && onAdd()}
+            disabled={!canAdd}
+            className={
+              'rounded-lg border px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 ' +
+              (canAdd
+                ? 'border-purple-600 bg-purple-700 hover:bg-purple-600'
+                : 'border-gray-600 bg-gray-700 disabled:opacity-60 cursor-not-allowed')
+            }
+            title={
+              canAdd
+                ? 'Add equation'
+                : `Maximum ${MAX_EQUATIONS} equations reached`
+            }
           >
             + Add equation
           </button>
@@ -155,6 +173,11 @@ const InputPanel: React.FC<InputPanelProps> = ({
             </div>
           </div>
         ))}
+        {equations.length >= MAX_EQUATIONS && (
+          <div className="col-span-2 italic text-sm text-gray-300">
+            Equation limit reached
+          </div>
+        )}
       </div>
 
       {errors.length > 0 && (

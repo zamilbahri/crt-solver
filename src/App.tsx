@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import Header from './components/Header';
 import InputPanel from './components/InputPanel';
@@ -15,6 +15,7 @@ import { pairwiseCoprimeConflicts, solveCRT } from './utils/crt';
  * @const
  */
 const STORAGE_KEY = 'crt_solver_state';
+const MAX_EQUATIONS = 10;
 
 /**
  * Validates if a string represents a valid integer (including negative integers).
@@ -110,8 +111,48 @@ const loadDraft = (): EquationDraft[] => {
  *
  * @param {EquationDraft[]} draftData - The equations to save
  */
+// Note: we keep `localStorage` helpers only as a fallback for older saved state.
 const saveDraft = (draftData: EquationDraft[]): void => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(draftData));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(draftData));
+  } catch {
+    // ignore
+  }
+};
+
+const loadFromUrl = (): EquationDraft[] | null => {
+  try {
+    const sp = new URLSearchParams(window.location.search);
+    const items: EquationDraft[] = [];
+    for (let i = 1; i <= MAX_EQUATIONS; i += 1) {
+      const a = sp.get(`a${i}`) ?? '';
+      const m = sp.get(`m${i}`) ?? '';
+      if (a !== '' || m !== '') {
+        items.push({ a, m });
+      }
+    }
+    return items.length > 0 ? items : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeToUrl = (draftData: EquationDraft[]): void => {
+  try {
+    const sp = new URLSearchParams();
+    for (let i = 0; i < Math.min(draftData.length, MAX_EQUATIONS); i += 1) {
+      const item = draftData[i];
+      if (item.a && item.a.length > 0) sp.set(`a${i + 1}`, item.a);
+      if (item.m && item.m.length > 0) sp.set(`m${i + 1}`, item.m);
+    }
+    const qs = sp.toString();
+    const newUrl = qs
+      ? `${window.location.pathname}?${qs}`
+      : window.location.pathname;
+    window.history.replaceState(null, '', newUrl);
+  } catch {
+    // ignore
+  }
 };
 
 /**
@@ -127,12 +168,30 @@ const saveDraft = (draftData: EquationDraft[]): void => {
  * export default App;
  */
 const App: React.FC = () => {
-  const [equations, setEquations] = useState<EquationDraft[]>(() =>
-    loadDraft(),
-  );
+  const [equations, setEquations] = useState<EquationDraft[]>(() => {
+    const fromUrl = loadFromUrl();
+    if (fromUrl && fromUrl.length > 0) return fromUrl;
+    return loadDraft();
+  });
 
+  // Persist to URL (debounced) and also save to localStorage as a fallback copy
+  const writeTimer = useRef<number | null>(null);
   useEffect(() => {
-    saveDraft(equations);
+    if (writeTimer.current) {
+      window.clearTimeout(writeTimer.current);
+    }
+    writeTimer.current = window.setTimeout(() => {
+      writeToUrl(equations);
+      saveDraft(equations);
+      writeTimer.current = null;
+    }, 300);
+
+    return () => {
+      if (writeTimer.current) {
+        window.clearTimeout(writeTimer.current);
+        writeTimer.current = null;
+      }
+    };
   }, [equations]);
 
   const { errors, result, isCoprime } = useMemo(() => {
@@ -220,7 +279,11 @@ const App: React.FC = () => {
               );
             }}
             onAdd={() => {
-              setEquations((prev) => [...prev, { a: '', m: '' }]);
+              setEquations((prev) =>
+                prev.length < MAX_EQUATIONS
+                  ? [...prev, { a: '', m: '' }]
+                  : prev,
+              );
             }}
             onRemove={() => {
               setEquations((prev) =>
