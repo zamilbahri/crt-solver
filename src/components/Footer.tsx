@@ -14,12 +14,12 @@ const Footer: React.FC = (): React.ReactElement => {
       <p className="text-sm text-gray-500">
         Check out my{' '}
         <a
-          href="https://zamilbahri.github.io/fast-exponentiation"
+          href="https://zamilbahri.github.io/mod-calculator-suite"
           target="_blank"
           rel="noopener noreferrer"
           className="text-purple-300 hover:text-purple-200 transition-colors underline"
         >
-          Fast Exponentiation calculator
+          Mod Calculator Suite
         </a>
         !
       </p>
